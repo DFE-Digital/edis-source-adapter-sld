@@ -28,6 +28,7 @@
       <ProjectReference Include="..\Dfe.Edis.SourceAdapter.Sld.Application\Dfe.Edis.SourceAdapter.Sld.Application.csproj" />
       <ProjectReference Include="..\Dfe.Edis.SourceAdapter.Sld.Domain\Dfe.Edis.SourceAdapter.Sld.Domain.csproj" />
       <ProjectReference Include="..\Dfe.Edis.SourceAdapter.Sld.Infrastructure.AzureStorage\Dfe.Edis.SourceAdapter.Sld.Infrastructure.AzureStorage.csproj" />
+      <ProjectReference Include="..\Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi\Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi.csproj" />
     </ItemGroup>
 
 </Project>

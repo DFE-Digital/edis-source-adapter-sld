@@ -47,7 +47,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs.Functions
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error while processing change");
+                    _logger.LogError(ex, $"Error while processing change - {ex.Message}");
                     throw;
                 }
             }

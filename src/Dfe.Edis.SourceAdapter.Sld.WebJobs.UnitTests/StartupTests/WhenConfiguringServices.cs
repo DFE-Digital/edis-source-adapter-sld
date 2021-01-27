@@ -26,7 +26,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs.UnitTests.StartupTests
             }
 
             // For some reason the AddHttpClient extensions not resolving under test. Adding this to work around until can figure it out
-            serviceCollection.AddScoped<HttpClient>(sp => new HttpClient());
+            serviceCollection.AddScoped(sp => new HttpClient());
 
             var provider = serviceCollection.BuildServiceProvider();
 
@@ -59,6 +59,14 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs.UnitTests.StartupTests
                 {
                     TableConnectionString = "UseDevelopmentStorage=true;",
                     TableName = "test-state",
+                },
+                SubmitLearnerData = new SubmitLearnerDataConfiguration
+                {
+                    BaseUrl = "https://localhost:1234/sld",
+                    OAuthTokenEndpoint = "https://localhost:1234/sld-auth/token",
+                    OAuthClientId = "client-id",
+                    OAuthClientSecret = "super-secure-secret",
+                    OAuthScope = "stuff",
                 },
             };
         }
