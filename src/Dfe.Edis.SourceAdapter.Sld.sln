@@ -10,6 +10,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{108D3C08
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.Edis.SourceAdapter.Sld.WebJobs.UnitTests", "Dfe.Edis.SourceAdapter.Sld.WebJobs.UnitTests\Dfe.Edis.SourceAdapter.Sld.WebJobs.UnitTests.csproj", "{35967F82-AB03-4780-9E7A-54A41C1B28D0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.Edis.SourceAdapter.Sld.Infrastructure.AzureStorage", "Dfe.Edis.SourceAdapter.Sld.Infrastructure.AzureStorage\Dfe.Edis.SourceAdapter.Sld.Infrastructure.AzureStorage.csproj", "{F0249A11-AB0D-4ADA-88D0-349BF2DFA385}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.Edis.SourceAdapter.Sld.Application.UnitTests", "Dfe.Edis.SourceAdapter.Sld.Application.UnitTests\Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.csproj", "{929DF88F-B801-4B22-9C6B-144D274D84B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,8 +36,17 @@ Global
 		{35967F82-AB03-4780-9E7A-54A41C1B28D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35967F82-AB03-4780-9E7A-54A41C1B28D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35967F82-AB03-4780-9E7A-54A41C1B28D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0249A11-AB0D-4ADA-88D0-349BF2DFA385}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0249A11-AB0D-4ADA-88D0-349BF2DFA385}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0249A11-AB0D-4ADA-88D0-349BF2DFA385}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0249A11-AB0D-4ADA-88D0-349BF2DFA385}.Release|Any CPU.Build.0 = Release|Any CPU
+		{929DF88F-B801-4B22-9C6B-144D274D84B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{929DF88F-B801-4B22-9C6B-144D274D84B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{929DF88F-B801-4B22-9C6B-144D274D84B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{929DF88F-B801-4B22-9C6B-144D274D84B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{35967F82-AB03-4780-9E7A-54A41C1B28D0} = {108D3C08-1AB2-4B47-8FA2-449BE91B1CD6}
+		{929DF88F-B801-4B22-9C6B-144D274D84B4} = {108D3C08-1AB2-4B47-8FA2-449BE91B1CD6}
 	EndGlobalSection
 EndGlobal

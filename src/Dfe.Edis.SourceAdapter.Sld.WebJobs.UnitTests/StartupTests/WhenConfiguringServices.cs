@@ -55,6 +55,11 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs.UnitTests.StartupTests
         {
             return new RootAppConfiguration
             {
+                State = new StateConfiguration
+                {
+                    TableConnectionString = "UseDevelopmentStorage=true;",
+                    TableName = "test-state",
+                },
             };
         }
 
