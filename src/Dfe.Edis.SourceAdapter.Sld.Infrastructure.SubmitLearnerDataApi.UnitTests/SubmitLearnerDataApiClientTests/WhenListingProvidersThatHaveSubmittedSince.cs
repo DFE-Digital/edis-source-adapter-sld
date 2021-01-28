@@ -54,7 +54,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi.UnitTes
                 .ReturnsAsync(bearerToken);
             var cancellationToken = new CancellationToken();
 
-            await _apiClient.ListProvidersThatHaveSubmittedSince("2021", null, 1, cancellationToken);
+            await _apiClient.ListProvidersThatHaveSubmittedSinceAsync("2021", null, 1, cancellationToken);
 
             _submitLearnerDataAuthenticatorMock.Verify(authenticator => authenticator.GetBearerTokenAsync(cancellationToken),
                 Moq.Times.Once);
@@ -71,7 +71,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi.UnitTes
         [TestCase("2020", 3)]
         public async Task ThenItShouldCallV1ProvidersEndpointWithAcademicYearAndPageNumber(string academicYear, int pageNumber)
         {
-            await _apiClient.ListProvidersThatHaveSubmittedSince(academicYear, null, pageNumber, CancellationToken.None);
+            await _apiClient.ListProvidersThatHaveSubmittedSinceAsync(academicYear, null, pageNumber, CancellationToken.None);
 
             var expectedUrl = new Uri(
                 new Uri(_configuration.BaseUrl, UriKind.Absolute),
@@ -83,7 +83,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi.UnitTes
         [Test]
         public async Task ThenItShouldCallV1ProvidersEndpointIncludingStartTimeIfSubmittedSinceNotNull()
         {
-            await _apiClient.ListProvidersThatHaveSubmittedSince("2021", new DateTime(2021, 1, 28), 1, CancellationToken.None);
+            await _apiClient.ListProvidersThatHaveSubmittedSinceAsync("2021", new DateTime(2021, 1, 28), 1, CancellationToken.None);
 
             var expectedUrl = new Uri(
                 new Uri(_configuration.BaseUrl, UriKind.Absolute),
@@ -101,7 +101,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi.UnitTes
             _httpClientMock.SetDefaultResponse(
                 ResponseBuilder.Json(new[] {ukprn1, ukprn2, ukprn3}, new SystemTextMtwJsonSerializer()));
 
-            var actual = await _apiClient.ListProvidersThatHaveSubmittedSince("2021", null, 1, CancellationToken.None);
+            var actual = await _apiClient.ListProvidersThatHaveSubmittedSinceAsync("2021", null, 1, CancellationToken.None);
 
             Assert.IsNotNull(actual);
             Assert.IsNotNull(actual.Items);
@@ -137,7 +137,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi.UnitTes
                     }
                 });
 
-            var actual = await _apiClient.ListProvidersThatHaveSubmittedSince("2021", null, 1, CancellationToken.None);
+            var actual = await _apiClient.ListProvidersThatHaveSubmittedSinceAsync("2021", null, 1, CancellationToken.None);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(totalItems, actual.TotalNumberOfItems);
@@ -156,7 +156,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi.UnitTes
                     Content = new StringContent(JsonSerializer.Serialize(new[] {10000000})),
                 });
 
-            var actual = await _apiClient.ListProvidersThatHaveSubmittedSince("2021", null, 1, CancellationToken.None);
+            var actual = await _apiClient.ListProvidersThatHaveSubmittedSinceAsync("2021", null, 1, CancellationToken.None);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(0, actual.TotalNumberOfItems);
@@ -171,7 +171,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi.UnitTes
             _httpClientMock.SetDefaultResponse(
                 ResponseBuilder.Response().WithStatus(HttpStatusCode.NoContent));
 
-            var actual = await _apiClient.ListProvidersThatHaveSubmittedSince("2021", null, 1, CancellationToken.None);
+            var actual = await _apiClient.ListProvidersThatHaveSubmittedSinceAsync("2021", null, 1, CancellationToken.None);
 
             Assert.IsNotNull(actual);
             Assert.AreEqual(0, actual.TotalNumberOfItems);

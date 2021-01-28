@@ -57,7 +57,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi
             return result.Data.Select(x => x.ToString()).ToArray();
         }
 
-        public async Task<SldPagedResult<int>> ListProvidersThatHaveSubmittedSince(
+        public async Task<SldPagedResult<int>> ListProvidersThatHaveSubmittedSinceAsync(
             string academicYear,
             DateTime? submittedSince,
             int pageNumber,
@@ -95,6 +95,45 @@ namespace Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi
             }
 
             return new SldPagedResult<int>
+            {
+                Items = result.Data,
+                TotalNumberOfItems = result.PaginationInfo?.TotalItems ?? 0,
+                PageNumber = result.PaginationInfo?.PageNumber ?? 0,
+                PageSize = result.PaginationInfo?.PageSize ?? 0,
+                TotalNumberOfPages = result.PaginationInfo?.TotalPages ?? 0,
+            };
+        }
+
+        public async Task<SldPagedResult<Learner>> ListLearnersForProviderAsync(string academicYear, int ukprn, int pageNumber, CancellationToken cancellationToken)
+        {
+            var bearerToken = await _submitLearnerDataAuthenticator.GetBearerTokenAsync(cancellationToken);
+            var url = $"/api/v1/ilr-data/learners/{academicYear}?ukprn={ukprn}&pageNumber={pageNumber}";
+
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(url, UriKind.Relative),
+                Headers =
+                {
+                    Authorization = new AuthenticationHeaderValue("Bearer", bearerToken),
+                },
+            };
+            var result = await SendAndParseAsync<Learner[]>(request, cancellationToken);
+
+            if (result.IsInPeriodEnd)
+            {
+                _logger.LogWarning($"Unable to list learners in {academicYear} for provider {ukprn} as SLD is currently in period end");
+                return new SldPagedResult<Learner>
+                {
+                    Items = new Learner[0],
+                    TotalNumberOfItems = 0,
+                    PageNumber = 0,
+                    PageSize = 0,
+                    TotalNumberOfPages = 0,
+                };
+            }
+
+            return new SldPagedResult<Learner>
             {
                 Items = result.Data,
                 TotalNumberOfItems = result.PaginationInfo?.TotalItems ?? 0,

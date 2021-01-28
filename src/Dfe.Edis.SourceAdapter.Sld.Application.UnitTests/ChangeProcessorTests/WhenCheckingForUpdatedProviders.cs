@@ -27,7 +27,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
             _sldClientMock = new Mock<ISldClient>();
             _sldClientMock.Setup(sld => sld.ListAcademicYearsAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new[] {"2021"});
-            _sldClientMock.Setup(sld => sld.ListProvidersThatHaveSubmittedSince(
+            _sldClientMock.Setup(sld => sld.ListProvidersThatHaveSubmittedSinceAsync(
                     It.IsAny<string>(),
                     It.IsAny<DateTime?>(),
                     It.IsAny<int>(),
@@ -94,7 +94,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
             var cancellationToken = new CancellationToken();
 
             var rdm = new Random();
-            _sldClientMock.Setup(sld => sld.ListProvidersThatHaveSubmittedSince(It.IsAny<string>(), It.IsAny<DateTime?>(), 1, It.IsAny<CancellationToken>()))
+            _sldClientMock.Setup(sld => sld.ListProvidersThatHaveSubmittedSinceAsync(It.IsAny<string>(), It.IsAny<DateTime?>(), 1, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new SldPagedResult<int>
                 {
                     Items = Enumerable.Range(1, 10).Select(x => rdm.Next(10000000, 99999999)).ToArray(),
@@ -103,7 +103,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
                     TotalNumberOfItems = 45,
                     TotalNumberOfPages = 3,
                 });
-            _sldClientMock.Setup(sld => sld.ListProvidersThatHaveSubmittedSince(It.IsAny<string>(), It.IsAny<DateTime?>(), 2, It.IsAny<CancellationToken>()))
+            _sldClientMock.Setup(sld => sld.ListProvidersThatHaveSubmittedSinceAsync(It.IsAny<string>(), It.IsAny<DateTime?>(), 2, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new SldPagedResult<int>
                 {
                     Items = Enumerable.Range(1, 10).Select(x => rdm.Next(10000000, 99999999)).ToArray(),
@@ -112,7 +112,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
                     TotalNumberOfItems = 25,
                     TotalNumberOfPages = 3,
                 });
-            _sldClientMock.Setup(sld => sld.ListProvidersThatHaveSubmittedSince(It.IsAny<string>(), It.IsAny<DateTime?>(), 3, It.IsAny<CancellationToken>()))
+            _sldClientMock.Setup(sld => sld.ListProvidersThatHaveSubmittedSinceAsync(It.IsAny<string>(), It.IsAny<DateTime?>(), 3, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new SldPagedResult<int>
                 {
                     Items = Enumerable.Range(1, 10).Select(x => rdm.Next(10000000, 99999999)).ToArray(),
@@ -128,14 +128,14 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
 
             await _processor.CheckForUpdatedProvidersAsync(cancellationToken);
 
-            _sldClientMock.Verify(sld => sld.ListProvidersThatHaveSubmittedSince(
+            _sldClientMock.Verify(sld => sld.ListProvidersThatHaveSubmittedSinceAsync(
                     It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
                 Times.Exactly(3));
-            _sldClientMock.Verify(sld => sld.ListProvidersThatHaveSubmittedSince(academicYear, lastPoll, 1, cancellationToken),
+            _sldClientMock.Verify(sld => sld.ListProvidersThatHaveSubmittedSinceAsync(academicYear, lastPoll, 1, cancellationToken),
                 Times.Once);
-            _sldClientMock.Verify(sld => sld.ListProvidersThatHaveSubmittedSince(academicYear, lastPoll, 2, cancellationToken),
+            _sldClientMock.Verify(sld => sld.ListProvidersThatHaveSubmittedSinceAsync(academicYear, lastPoll, 2, cancellationToken),
                 Times.Once);
-            _sldClientMock.Verify(sld => sld.ListProvidersThatHaveSubmittedSince(academicYear, lastPoll, 3, cancellationToken),
+            _sldClientMock.Verify(sld => sld.ListProvidersThatHaveSubmittedSinceAsync(academicYear, lastPoll, 3, cancellationToken),
                 Times.Once);
         }
 
@@ -145,7 +145,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
             var academicYear = "2021";
             var rdm = new Random();
             var items = Enumerable.Range(1, 3).Select(x => rdm.Next(10000000, 99999999)).ToArray();
-            _sldClientMock.Setup(sld => sld.ListProvidersThatHaveSubmittedSince(It.IsAny<string>(), It.IsAny<DateTime?>(), 1, It.IsAny<CancellationToken>()))
+            _sldClientMock.Setup(sld => sld.ListProvidersThatHaveSubmittedSinceAsync(It.IsAny<string>(), It.IsAny<DateTime?>(), 1, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new SldPagedResult<int>
                 {
                     Items = items,

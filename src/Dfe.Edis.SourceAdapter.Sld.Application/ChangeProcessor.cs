@@ -58,7 +58,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application
             {
                 _logger.LogInformation("Getting providers that have submitted since {LastPoll} in academic year {AcademicYear}",
                     lastPoll, academicYear);
-                var pageOfProviders = await _sldClient.ListProvidersThatHaveSubmittedSince(academicYear, lastPoll, pageNumber, cancellationToken);
+                var pageOfProviders = await _sldClient.ListProvidersThatHaveSubmittedSinceAsync(academicYear, lastPoll, pageNumber, cancellationToken);
 
                 providers.AddRange(pageOfProviders.Items);
                 pageNumber++;
@@ -85,10 +85,10 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application
 
         public async Task ProcessProviderAsync(string academicYear, int ukprn, CancellationToken cancellationToken)
         {
-            // TODO: Get first page of learners for provider
-            
+            var firstPageOfLearners = await _sldClient.ListLearnersForProviderAsync(academicYear, ukprn, 1, cancellationToken);
+
             // TODO: Check if number of learners in tolerance
-            
+
             // TODO: Queue item for each page 
         }
     }
