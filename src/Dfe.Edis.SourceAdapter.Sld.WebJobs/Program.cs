@@ -34,6 +34,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs
             {
                 webJobBuilder.AddTimers();
                 webJobBuilder.AddAzureStorageCoreServices();
+                webJobBuilder.AddAzureStorage();
             });
             hostBuilder.ConfigureLogging((context, logBuilder) =>
             {

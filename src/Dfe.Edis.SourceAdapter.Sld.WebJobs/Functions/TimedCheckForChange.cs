@@ -22,6 +22,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs.Functions
         }
 
         [Singleton]
+        [FunctionName(nameof(TimedCheckForChange))]
         public async Task RunAsync(
             [TimerTrigger("%CheckForChangeSchedule%")]
             TimerInfo timerInfo,

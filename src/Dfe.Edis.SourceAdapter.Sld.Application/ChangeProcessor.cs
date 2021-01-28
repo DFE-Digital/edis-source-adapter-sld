@@ -13,6 +13,8 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application
     public interface IChangeProcessor
     {
         Task CheckForUpdatedProvidersAsync(CancellationToken cancellationToken);
+
+        Task ProcessProviderAsync(string academicYear, int ukprn, CancellationToken cancellationToken);
     }
 
     public class ChangeProcessor : IChangeProcessor
@@ -79,6 +81,15 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application
             }
 
             await _stateStore.SetLastPollTimeAsync(lastPoll.Value, cancellationToken);
+        }
+
+        public async Task ProcessProviderAsync(string academicYear, int ukprn, CancellationToken cancellationToken)
+        {
+            // TODO: Get first page of learners for provider
+            
+            // TODO: Check if number of learners in tolerance
+            
+            // TODO: Queue item for each page 
         }
     }
 }
