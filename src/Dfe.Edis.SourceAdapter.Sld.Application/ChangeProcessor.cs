@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dfe.Edis.SourceAdapter.Sld.Domain.Queuing;
 using Dfe.Edis.SourceAdapter.Sld.Domain.StateManagement;
 using Dfe.Edis.SourceAdapter.Sld.Domain.SubmitLearnerData;
 using Microsoft.Extensions.Logging;
@@ -18,15 +19,18 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application
     {
         private readonly IStateStore _stateStore;
         private readonly ISldClient _sldClient;
+        private readonly IProviderQueue _providerQueue;
         private readonly ILogger<ChangeProcessor> _logger;
 
         public ChangeProcessor(
             IStateStore stateStore,
             ISldClient sldClient,
+            IProviderQueue providerQueue,
             ILogger<ChangeProcessor> logger)
         {
             _stateStore = stateStore;
             _sldClient = sldClient;
+            _providerQueue = providerQueue;
             _logger = logger;
         }
 
@@ -63,9 +67,16 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application
             _logger.LogInformation("Found {NumberOfProviders} providers changed since {LastPoll} in academic year {AcademicYear}",
                 providers.Count, lastPoll, academicYear);
 
-            // TODO: Check if each provider is update since last time we checked it (just in case we dropped mid-process last time)
-            // TODO: Queue providers
-
+            foreach (var provider in providers)
+            {
+                await _providerQueue.EnqueueAsync(new ProviderQueueItem
+                {
+                    AcademicYear = academicYear,
+                    Ukprn = provider,
+                }, cancellationToken);
+                _logger.LogInformation("Queued provider {UKPRN} from academic year {AcademicYear} for processing",
+                    provider, academicYear);
+            }
 
             await _stateStore.SetLastPollTimeAsync(lastPoll.Value, cancellationToken);
         }

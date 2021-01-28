@@ -2,8 +2,10 @@ using System.Net.Http;
 using Dfe.Edis.Kafka;
 using Dfe.Edis.SourceAdapter.Sld.Application;
 using Dfe.Edis.SourceAdapter.Sld.Domain.Configuration;
+using Dfe.Edis.SourceAdapter.Sld.Domain.Queuing;
 using Dfe.Edis.SourceAdapter.Sld.Domain.StateManagement;
 using Dfe.Edis.SourceAdapter.Sld.Domain.SubmitLearnerData;
+using Dfe.Edis.SourceAdapter.Sld.Infrastructure.AzureStorage.Queuing;
 using Dfe.Edis.SourceAdapter.Sld.Infrastructure.AzureStorage.StateManagement;
 using Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +22,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs
             services.AddHttpClient();
 
             AddState(services);
+            AddQueuing(services);
             AddSubmitLearnerData(services);
 
             services
@@ -30,17 +33,23 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs
         {
             services.AddSingleton(configuration);
             services.AddSingleton(configuration.State);
+            services.AddSingleton(configuration.Queuing);
             services.AddSingleton(configuration.SubmitLearnerData);
         }
 
-        private void AddState(IServiceCollection serviceCollection)
+        private void AddState(IServiceCollection services)
         {
-            serviceCollection.AddScoped<IStateStore, TableStateStore>();
+            services.AddScoped<IStateStore, TableStateStore>();
         }
 
-        private void AddSubmitLearnerData(IServiceCollection serviceCollection)
+        private void AddQueuing(IServiceCollection services)
         {
-            serviceCollection.AddSingleton<ISubmitLearnerDataAuthenticator>(sp =>
+            services.AddScoped<IProviderQueue, StorageProviderQueue>();
+        }
+
+        private void AddSubmitLearnerData(IServiceCollection services)
+        {
+            services.AddSingleton<ISubmitLearnerDataAuthenticator>(sp =>
             {
                 var httpClientFactory = sp.GetService<IHttpClientFactory>();
                 var httpClient = httpClientFactory.CreateClient();
@@ -48,7 +57,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs
                 var logger = sp.GetService<ILogger<SubmitLearnerDataAuthenticator>>();
                 return new SubmitLearnerDataAuthenticator(httpClient, configuration, logger);
             });
-            serviceCollection.AddScoped<ISldClient>(sp =>
+            services.AddScoped<ISldClient>(sp =>
             {
                 var httpClientFactory = sp.GetService<IHttpClientFactory>();
                 var httpClient = httpClientFactory.CreateClient();

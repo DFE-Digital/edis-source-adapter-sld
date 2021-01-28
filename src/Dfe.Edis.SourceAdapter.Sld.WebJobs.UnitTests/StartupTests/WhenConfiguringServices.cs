@@ -60,6 +60,10 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs.UnitTests.StartupTests
                     TableConnectionString = "UseDevelopmentStorage=true;",
                     TableName = "test-state",
                 },
+                Queuing = new QueuingConfiguration
+                {
+                    QueueConnectionString = "UseDevelopmentStorage=true"
+                },
                 SubmitLearnerData = new SubmitLearnerDataConfiguration
                 {
                     BaseUrl = "https://localhost:1234/sld",

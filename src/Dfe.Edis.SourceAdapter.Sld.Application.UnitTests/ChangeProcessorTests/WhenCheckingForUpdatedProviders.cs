@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dfe.Edis.SourceAdapter.Sld.Domain.Queuing;
 using Dfe.Edis.SourceAdapter.Sld.Domain.StateManagement;
 using Dfe.Edis.SourceAdapter.Sld.Domain.SubmitLearnerData;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
     {
         private Mock<IStateStore> _stateStoreMock;
         private Mock<ISldClient> _sldClientMock;
+        private Mock<IProviderQueue> _providerQueueMock;
         private Mock<ILogger<ChangeProcessor>> _loggerMock;
         private ChangeProcessor _processor;
 
@@ -39,11 +41,14 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
                     TotalNumberOfPages = 0,
                 });
 
+            _providerQueueMock = new Mock<IProviderQueue>();
+
             _loggerMock = new Mock<ILogger<ChangeProcessor>>();
 
             _processor = new ChangeProcessor(
                 _stateStoreMock.Object,
                 _sldClientMock.Object,
+                _providerQueueMock.Object,
                 _loggerMock.Object);
         }
 
@@ -87,7 +92,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
             var academicYear = "2021";
             DateTime? lastPoll = DateTime.Now;
             var cancellationToken = new CancellationToken();
-            
+
             var rdm = new Random();
             _sldClientMock.Setup(sld => sld.ListProvidersThatHaveSubmittedSince(It.IsAny<string>(), It.IsAny<DateTime?>(), 1, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new SldPagedResult<int>
@@ -131,6 +136,43 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
             _sldClientMock.Verify(sld => sld.ListProvidersThatHaveSubmittedSince(academicYear, lastPoll, 2, cancellationToken),
                 Times.Once);
             _sldClientMock.Verify(sld => sld.ListProvidersThatHaveSubmittedSince(academicYear, lastPoll, 3, cancellationToken),
+                Times.Once);
+        }
+
+        [Test]
+        public async Task ThenItShouldEnqueueAllProviders()
+        {
+            var academicYear = "2021";
+            var rdm = new Random();
+            var items = Enumerable.Range(1, 3).Select(x => rdm.Next(10000000, 99999999)).ToArray();
+            _sldClientMock.Setup(sld => sld.ListProvidersThatHaveSubmittedSince(It.IsAny<string>(), It.IsAny<DateTime?>(), 1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new SldPagedResult<int>
+                {
+                    Items = items,
+                    PageNumber = 1,
+                    PageSize = 10,
+                    TotalNumberOfItems = 3,
+                    TotalNumberOfPages = 1,
+                });
+            _sldClientMock.Setup(sld => sld.ListAcademicYearsAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new[] {academicYear});
+            var cancellationToken = new CancellationToken();
+
+            await _processor.CheckForUpdatedProvidersAsync(cancellationToken);
+
+            _providerQueueMock.Verify(q => q.EnqueueAsync(It.IsAny<ProviderQueueItem>(), It.IsAny<CancellationToken>()),
+                Times.Exactly(3));
+            _providerQueueMock.Verify(q => q.EnqueueAsync(
+                    It.Is<ProviderQueueItem>(item => item.AcademicYear == academicYear && item.Ukprn == items[0]), 
+                    cancellationToken),
+                Times.Once);
+            _providerQueueMock.Verify(q => q.EnqueueAsync(
+                    It.Is<ProviderQueueItem>(item => item.AcademicYear == academicYear && item.Ukprn == items[1]), 
+                    cancellationToken),
+                Times.Once);
+            _providerQueueMock.Verify(q => q.EnqueueAsync(
+                    It.Is<ProviderQueueItem>(item => item.AcademicYear == academicYear && item.Ukprn == items[2]), 
+                    cancellationToken),
                 Times.Once);
         }
 
