@@ -22,17 +22,20 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application
         private readonly IStateStore _stateStore;
         private readonly ISldClient _sldClient;
         private readonly IProviderQueue _providerQueue;
+        private readonly ILearnerQueue _learnerQueue;
         private readonly ILogger<ChangeProcessor> _logger;
 
         public ChangeProcessor(
             IStateStore stateStore,
             ISldClient sldClient,
             IProviderQueue providerQueue,
+            ILearnerQueue learnerQueue,
             ILogger<ChangeProcessor> logger)
         {
             _stateStore = stateStore;
             _sldClient = sldClient;
             _providerQueue = providerQueue;
+            _learnerQueue = learnerQueue;
             _logger = logger;
         }
 
@@ -87,9 +90,34 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application
         {
             var firstPageOfLearners = await _sldClient.ListLearnersForProviderAsync(academicYear, ukprn, 1, cancellationToken);
 
-            // TODO: Check if number of learners in tolerance
+            var state = await _stateStore.GetProviderStateAsync(academicYear, ukprn, cancellationToken);
+            var difference = state == null ? 0m : Math.Abs(1 - (firstPageOfLearners.TotalNumberOfItems / (decimal) state.NumberOfLearners));
 
-            // TODO: Queue item for each page 
+            if (state == null || difference <= 0.1m || state.IgnoredSubmissionCount >= 4)
+            {
+                for (var i = 1; i <= firstPageOfLearners.TotalNumberOfPages; i++)
+                {
+                    await _learnerQueue.EnqueueAsync(new LearnerQueueItem
+                    {
+                        AcademicYear = academicYear,
+                        Ukprn = ukprn,
+                        PageNumber = i,
+                    }, cancellationToken);
+                }
+
+                await _stateStore.SetProviderStateAsync(new ProviderState
+                {
+                    AcademicYear = academicYear,
+                    Ukprn = ukprn,
+                    NumberOfLearners = firstPageOfLearners.TotalNumberOfItems,
+                    IgnoredSubmissionCount = 0,
+                }, cancellationToken);
+            }
+            else
+            {
+                state.IgnoredSubmissionCount++;
+                await _stateStore.SetProviderStateAsync(state, cancellationToken);
+            }
         }
     }
 }

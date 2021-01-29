@@ -45,6 +45,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs
         private void AddQueuing(IServiceCollection services)
         {
             services.AddScoped<IProviderQueue, StorageProviderQueue>();
+            services.AddScoped<ILearnerQueue, StorageLearnerQueue>();
         }
 
         private void AddSubmitLearnerData(IServiceCollection services)

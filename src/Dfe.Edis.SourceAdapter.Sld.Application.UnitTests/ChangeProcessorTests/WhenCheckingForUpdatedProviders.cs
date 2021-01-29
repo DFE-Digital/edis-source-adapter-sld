@@ -16,6 +16,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
         private Mock<IStateStore> _stateStoreMock;
         private Mock<ISldClient> _sldClientMock;
         private Mock<IProviderQueue> _providerQueueMock;
+        private Mock<ILearnerQueue> _learnerQueueMock;
         private Mock<ILogger<ChangeProcessor>> _loggerMock;
         private ChangeProcessor _processor;
 
@@ -42,6 +43,8 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
                 });
 
             _providerQueueMock = new Mock<IProviderQueue>();
+            
+            _learnerQueueMock = new Mock<ILearnerQueue>();
 
             _loggerMock = new Mock<ILogger<ChangeProcessor>>();
 
@@ -49,6 +52,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
                 _stateStoreMock.Object,
                 _sldClientMock.Object,
                 _providerQueueMock.Object,
+                _learnerQueueMock.Object,
                 _loggerMock.Object);
         }
 
