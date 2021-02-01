@@ -76,7 +76,7 @@
     "namePrefix": "[concat(parameters('serviceIdentifier'), parameters('environment'), parameters('environmentInstance'))]",
     "storageAccountName": "[toLower(concat(variables('namePrefix'), parameters('appName')))]",
     "storageAccountId": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-    "storageAccountTableName": "edis-sld-state",
+    "storageAccountTableName": "sldstate",
     "appServicePlanName": "[toLower(concat(variables('namePrefix'), '-', parameters('appName'), '-asp-01'))]",
     "appServicePlanId": "[concat(resourceGroup().id,'/providers/','Microsoft.Web/serverfarms/', variables('appServicePlanName'))]",
     "appServiceName": "[toLower(concat(variables('namePrefix'), '-', parameters('appName'), '-app-01'))]",
