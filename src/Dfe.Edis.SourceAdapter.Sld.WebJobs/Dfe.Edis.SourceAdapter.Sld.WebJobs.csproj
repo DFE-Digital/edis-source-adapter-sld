@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Dfe.Edis.Kafka" Version="1.0.0" />
+        <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.25" />
+        <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="4.0.1" />
+        <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.3" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.11" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.11" />
+        <PackageReference Include="Microsoft.Extensions.Logging.ApplicationInsights" Version="2.16.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.10" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="run.cmd">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="settings.job">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Dfe.Edis.SourceAdapter.Sld.Application\Dfe.Edis.SourceAdapter.Sld.Application.csproj" />
+      <ProjectReference Include="..\Dfe.Edis.SourceAdapter.Sld.Domain\Dfe.Edis.SourceAdapter.Sld.Domain.csproj" />
+      <ProjectReference Include="..\Dfe.Edis.SourceAdapter.Sld.Infrastructure.AzureStorage\Dfe.Edis.SourceAdapter.Sld.Infrastructure.AzureStorage.csproj" />
+      <ProjectReference Include="..\Dfe.Edis.SourceAdapter.Sld.Infrastructure.Kafka\Dfe.Edis.SourceAdapter.Sld.Infrastructure.Kafka.csproj" />
+      <ProjectReference Include="..\Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi\Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi.csproj" />
+    </ItemGroup>
+
+</Project>
