@@ -38,8 +38,8 @@ steps:
     inputs:
       command: publish
       publishWebProjects: false
-      projects: 'src/Dfe.Edis.SourceAdapter.Sld.WebJob/Dfe.Edis.SourceAdapter.Sld.WebJob.csproj'
-      arguments: '--configuration $(buildConfiguration) --self-contained --output $(build.artifactstagingdirectory)/PublishedWebJob/App_Data/jobs/continuous/SldSourceJob --no-restore --no-build'
+      projects: 'src/Dfe.Edis.SourceAdapter.Sld.WebJobs/Dfe.Edis.SourceAdapter.Sld.WebJobs.csproj'
+      arguments: '--configuration $(buildConfiguration) --self-contained --output $(build.artifactstagingdirectory)/PublishedWebJob/App_Data/jobs/continuous/SldSourceJobs --no-restore --no-build'
       zipAfterPublish: false
       modifyOutputPath: false
       
