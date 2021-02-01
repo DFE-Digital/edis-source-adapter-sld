@@ -136,6 +136,7 @@
       "type": "Microsoft.Storage/storageAccounts/queueServices",
       "apiVersion": "2020-08-01-preview",
       "name": "sbedissa01/default",
+      "name": "[concat(variables('storageAccountName'), '/default)]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ],
