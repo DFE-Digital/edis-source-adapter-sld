@@ -40,7 +40,7 @@
       "type": "string"
     },
     "sldOAuthTokenEndpointUrl": {
-      "type": "securestring"
+      "type": "string"
     },
     "sldOAuthClientId": {
       "type": "securestring"
@@ -49,7 +49,7 @@
       "type": "securestring"
     },
     "sldOAuthScope": {
-      "type": "securestring"
+      "type": "string"
     },
     "kafkaBootstrapServers": {
       "type": "string"
