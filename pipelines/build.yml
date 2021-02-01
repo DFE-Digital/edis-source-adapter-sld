@@ -1,0 +1,66 @@
+trigger:
+  batch: true
+  branches:
+    include:
+      - "*"
+
+workspace:
+  clean: all
+
+variables:
+  buildConfiguration: 'release'
+  buildPlatform: 'any cpu'
+
+steps:
+  - task: NuGetCommand@2
+    displayName: 'Restore NuGet Packages'
+    inputs:
+      command: 'restore'
+      restoreSolution: '**/*.sln'
+      feedsToUse: 'config'
+      nugetConfigPath: 'src/nuget.config'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Build code'
+    inputs:
+      projects: 'src/**/*.csproj'
+      arguments: '--configuration $(buildConfiguration) --no-restore'
+
+  - task: DotNetCoreCLI@2
+    displayName: Test
+    inputs:
+      command: test
+      projects: 'src/**/*.*Tests.csproj'
+      arguments: '--configuration $(buildConfiguration) --no-build'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish WebJob'
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: 'src/Dfe.Edis.SourceAdapter.Sld.WebJob/Dfe.Edis.SourceAdapter.Sld.WebJob.csproj'
+      arguments: '--configuration $(buildConfiguration) --self-contained --output $(build.artifactstagingdirectory)/PublishedWebJob/App_Data/jobs/continuous/SldSourceJob --no-restore --no-build'
+      zipAfterPublish: false
+      modifyOutputPath: false
+      
+  - task: ArchiveFiles@2
+    displayName: 'Zip WebJob'
+    inputs:
+      rootFolderOrFile: '$(build.artifactstagingdirectory)/PublishedWebJob'
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/publish/Dfe.Edis.SourceAdapter.Sld.$(Build.BuildId).zip'
+      replaceExistingArchive: true
+      
+  - task: CopyFiles@2
+    displayName: 'Copy ARM template'
+    inputs:
+      Contents: |
+        azure/*
+      TargetFolder: '$(build.artifactstagingdirectory)/publish'
+      OverWrite: true
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact'
+    inputs:
+      PathtoPublish: '$(build.artifactstagingdirectory)/publish'

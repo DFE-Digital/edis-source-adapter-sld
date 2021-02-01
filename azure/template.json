@@ -1,0 +1,431 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "serviceIdentifier": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 4
+    },
+    "appName": {
+      "type": "string",
+      "maxLength": 8
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "d",
+      "allowedValues": [ "d", "t", "p" ]
+    },
+    "environmentName": {
+      "type": "string",
+      "defaultValue": "DEV",
+      "allowedValues": [ "DEV", "TEST", "OAT", "PROD" ]
+    },
+    "environmentInstance": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 2,
+      "defaultValue": "01"
+    },
+    "appInsightsInstance": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 2,
+      "defaultValue": "01"
+    },
+    "schedule": {
+      "type": "string"
+    },
+    "sldUrl": {
+      "type": "string"
+    },
+    "sldOAuthTokenEndpointUrl": {
+      "type": "securestring"
+    },
+    "sldOAuthClientId": {
+      "type": "securestring"
+    },
+    "sldOAuthClientSecret": {
+      "type": "securestring"
+    },
+    "sldOAuthScope": {
+      "type": "securestring"
+    },
+    "kafkaBootstrapServers": {
+      "type": "string"
+    },
+    "kafkaSchemaRegistryUrl": {
+      "type": "string"
+    },
+    "kafkaSldLearnerTopic": {
+      "type": "string"
+    },
+    "vNetInstance": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 2,
+      "defaultValue": "01"
+    },
+    "subnetInstance": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 2
+    }
+  },
+  "variables": {
+    "namePrefix": "[concat(parameters('serviceIdentifier'), parameters('environment'), parameters('environmentInstance'))]",
+    "storageAccountName": "[toLower(concat(variables('namePrefix'), parameters('appName')))]",
+    "storageAccountId": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+    "storageAccountTableName": "edis-sld-state",
+    "appServicePlanName": "[toLower(concat(variables('namePrefix'), '-', parameters('appName'), '-asp-01'))]",
+    "appServicePlanId": "[concat(resourceGroup().id,'/providers/','Microsoft.Web/serverfarms/', variables('appServicePlanName'))]",
+    "appServiceName": "[toLower(concat(variables('namePrefix'), '-', parameters('appName'), '-app-01'))]",
+    "sharedResourceGroupName": "[concat(variables('namePrefix'), '-shared')]",
+    "appInsightsName": "[concat(variables('sharedResourceGroupName'), '-ai-01')]",
+    "corePrefix": "[concat(variables('namePrefix'), '-core')]",
+    "vNetName": "[concat(concat(variables('corePrefix'), '-vn-'), parameters('vNetInstance'))]",
+    "subnetName": "[concat(concat(variables('corePrefix'), '-sn-'), parameters('subnetInstance'))]",
+    "subnetId": "[resourceId(variables('corePrefix'), 'Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('subnetName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[variables('storageAccountName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "Environment": "[parameters('environmentName')]",
+        "App": "[parameters('appName')]"
+      },
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "kind": "Storage",
+      "properties": {
+        "networkAcls": {
+          "bypass": "None",
+          "virtualNetworkRules": [
+            {
+              "id": "[variables('subnetId')]",
+              "action": "Allow",
+              "state": "Succeeded"
+            }
+          ],
+          "ipRules": [],
+          "defaultAction": "Deny"
+        },
+        "supportsHttpsTrafficOnly": true,
+        "encryption": {
+          "services": {
+            "file": {
+              "keyType": "Account",
+              "enabled": true
+            },
+            "blob": {
+              "keyType": "Account",
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        }
+      }
+    },
+
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices",
+      "apiVersion": "2020-08-01-preview",
+      "name": "sbedissa01/default",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(variables('storageAccountName'), '/default/sld-learners')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('storageAccountName'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "metadata": {}
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(variables('storageAccountName'), '/default/sld-providers')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices', variables('storageAccountName'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "metadata": {}
+      }
+    },
+
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(variables('storageAccountName'), '/default/', variables('storageAccountTableName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/tableServices', variables('storageAccountName'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2018-02-01",
+      "name": "[variables('appServicePlanName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "Environment": "[parameters('environmentName')]",
+        "App": "[parameters('appName')]"
+      },
+      "sku": {
+        "name": "S1",
+        "tier": "Standard",
+        "size": "S1",
+        "family": "S",
+        "capacity": 1
+      },
+      "kind": "app",
+      "properties": {
+        "perSiteScaling": false,
+        "maximumElasticWorkerCount": 1,
+        "isSpot": false,
+        "reserved": false,
+        "isXenon": false,
+        "hyperV": false,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2018-11-01",
+      "name": "[variables('appServiceName')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "Environment": "[parameters('environmentName')]",
+        "App": "[parameters('appName')]"
+      },
+      "kind": "app",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+      ],
+      "properties": {
+        "enabled": true,
+        "hostNameSslStates": [
+          {
+            "name": "[concat(variables('appServiceName'), '.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Standard"
+          },
+          {
+            "name": "[concat(variables('appServiceName'), '.scm.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Repository"
+          }
+        ],
+        "serverFarmId": "[variables('appServicePlanId')]",
+        "reserved": false,
+        "isXenon": false,
+        "hyperV": false,
+        "siteConfig": {},
+        "scmSiteAlsoStopped": false,
+        "clientAffinityEnabled": false,
+        "clientCertEnabled": false,
+        "hostNamesDisabled": false,
+        "containerSize": 0,
+        "dailyMemoryTimeQuota": 0,
+        "httpsOnly": false,
+        "redundancyMode": "None",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "Name": "AzureWebJobsDashboard",
+              "Value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "Name": "AzureWebJobsStorage",
+              "Value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "Name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "Value": "[reference(resourceId(variables('sharedResourceGroupName'), 'microsoft.insights/components/', variables('appInsightsName')), '2015-05-01').InstrumentationKey]"
+            },
+            {
+              "Name": "WEBSITE_VNET_ROUTE_ALL",
+              "Value": "1"
+            },
+            {
+              "Name": "WEBSITE_DNS_SERVER",
+              "Value": "168.63.129.16"
+            },
+            {
+              "Name": "CheckForChangeSchedule",
+              "Value": "[parameters('schedule')]"
+            },
+            {
+              "Name": "State__TableConnectionString",
+              "Value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "Name": "State__TableName",
+              "Value": "[variables('storageAccountTableName')]"
+            },
+            {
+              "Name": "Queuing__QueueConnectionString",
+              "Value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "Name": "SubmitLearnerData__BaseUrl",
+              "Value": "[parameters('sldUrl')]"
+            },
+            {
+              "Name": "SubmitLearnerData__OAuthTokenEndpoint",
+              "Value": "[parameters('sldOAuthTokenEndpointUrl')]"
+            },
+            {
+              "Name": "SubmitLearnerData__OAuthClientId",
+              "Value": "[parameters('sldOAuthClientId')]"
+            },
+            {
+              "Name": "SubmitLearnerData__OAuthClientSecret",
+              "Value": "[parameters('sldOAuthClientSecret')]"
+            },
+            {
+              "Name": "SubmitLearnerData__OAuthScope",
+              "Value": "[parameters('sldOAuthScope')]"
+            },
+            {
+              "Name": "DataServicePlatform__KafkaBootstrapServers",
+              "Value": "[parameters('kafkaBootstrapServers')]"
+            },
+            {
+              "Name": "DataServicePlatform__SchemaRegistryUrl",
+              "Value": "[parameters('kafkaSchemaRegistryUrl')]"
+            },
+            {
+              "Name": "DataServicePlatform__SldLearnerTopic",
+              "Value": "[parameters('kafkaSldLearnerTopic')]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "apiVersion": "2016-08-01",
+          "type": "Microsoft.Web/sites/networkConfig",
+          "name": "[concat(variables('appServiceName'), '/VirtualNetwork')]",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[concat('Microsoft.Web/sites/', variables('appServiceName'))]"
+          ],
+          "properties": {
+            "subnetResourceId": "[variables('subnetId')]"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2018-11-01",
+      "name": "[concat(variables('appServiceName'), '/web')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('appServiceName'))]"
+      ],
+      "tags": {
+        "Environment": "[parameters('environmentName')]",
+        "App": "[parameters('appName')]"
+      },
+      "properties": {
+        "numberOfWorkers": 1,
+        "defaultDocuments": [
+          "Default.htm",
+          "Default.html",
+          "Default.asp",
+          "index.htm",
+          "index.html",
+          "iisstart.htm",
+          "default.aspx",
+          "index.php",
+          "hostingstart.html"
+        ],
+        "netFrameworkVersion": "v4.0",
+        "requestTracingEnabled": false,
+        "remoteDebuggingEnabled": false,
+        "remoteDebuggingVersion": "VS2019",
+        "httpLoggingEnabled": false,
+        "logsDirectorySizeLimit": 35,
+        "detailedErrorLoggingEnabled": false,
+        "publishingUsername": "[concat('$', variables('appServiceName'))]",
+        "azureStorageAccounts": {},
+        "scmType": "VSTSRM",
+        "use32BitWorkerProcess": true,
+        "webSocketsEnabled": false,
+        "alwaysOn": true,
+        "managedPipelineMode": "Integrated",
+        "virtualApplications": [
+          {
+            "virtualPath": "/",
+            "physicalPath": "site\\wwwroot",
+            "preloadEnabled": true
+          }
+        ],
+        "loadBalancing": "LeastRequests",
+        "experiments": {
+          "rampUpRules": []
+        },
+        "autoHealEnabled": false,
+        "localMySqlEnabled": false,
+        "ipSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Allow",
+            "priority": 1,
+            "name": "Allow all",
+            "description": "Allow all access"
+          }
+        ],
+        "scmIpSecurityRestrictions": [
+          {
+            "ipAddress": "Any",
+            "action": "Allow",
+            "priority": 1,
+            "name": "Allow all",
+            "description": "Allow all access"
+          }
+        ],
+        "scmIpSecurityRestrictionsUseMain": false,
+        "http20Enabled": false,
+        "minTlsVersion": "1.2",
+        "ftpsState": "AllAllowed",
+        "reservedInstanceCount": 0
+      }
+    }
+  ]
+}

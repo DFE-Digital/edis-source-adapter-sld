@@ -20,6 +20,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.Edis.SourceAdapter.Sld.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.Edis.SourceAdapter.Sld.Infrastructure.Kafka", "Dfe.Edis.SourceAdapter.Sld.Infrastructure.Kafka\Dfe.Edis.SourceAdapter.Sld.Infrastructure.Kafka.csproj", "{DDA96DC1-01CF-4EDC-9F82-5F76405AA725}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deploy", "Deploy", "{41B3C6F4-64B5-4430-823D-D5CA3067F490}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{4BC6A305-C61E-4728-BD9B-ACD66168C250}"
+ProjectSection(SolutionItems) = preProject
+	..\pipelines\build.yml = ..\pipelines\build.yml
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release", "Release", "{E6DD104F-0D80-4F0F-8F3D-7E8A572058B5}"
+ProjectSection(SolutionItems) = preProject
+	..\azure\template.json = ..\azure\template.json
+EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,5 +79,7 @@ Global
 		{35967F82-AB03-4780-9E7A-54A41C1B28D0} = {108D3C08-1AB2-4B47-8FA2-449BE91B1CD6}
 		{929DF88F-B801-4B22-9C6B-144D274D84B4} = {108D3C08-1AB2-4B47-8FA2-449BE91B1CD6}
 		{FB5362FC-E884-4C1B-A211-EBDA32CDAD06} = {108D3C08-1AB2-4B47-8FA2-449BE91B1CD6}
+		{4BC6A305-C61E-4728-BD9B-ACD66168C250} = {41B3C6F4-64B5-4430-823D-D5CA3067F490}
+		{E6DD104F-0D80-4F0F-8F3D-7E8A572058B5} = {41B3C6F4-64B5-4430-823D-D5CA3067F490}
 	EndGlobalSection
 EndGlobal
