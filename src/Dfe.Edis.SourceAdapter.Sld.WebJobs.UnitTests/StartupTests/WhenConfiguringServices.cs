@@ -72,6 +72,11 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs.UnitTests.StartupTests
                     OAuthClientSecret = "super-secure-secret",
                     OAuthScope = "stuff",
                 },
+                DataServicePlatform = new DataServicePlatformConfiguration
+                {
+                    KafkaBootstrapServers = "localhost:12341",
+                    SchemaRegistryUrl = "http://localhost:12340"
+                }
             };
         }
 

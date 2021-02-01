@@ -11,23 +11,23 @@ using Microsoft.Extensions.Logging;
 
 namespace Dfe.Edis.SourceAdapter.Sld.WebJobs.Functions
 {
-    public class ProcessProviderItem
+    public class ProcessLearnersItem
     {
         private readonly IChangeProcessor _changeProcessor;
-        private readonly ILogger<ProcessProviderItem> _logger;
+        private readonly ILogger<ProcessLearnersItem> _logger;
 
-        public ProcessProviderItem(
+        public ProcessLearnersItem(
             IChangeProcessor changeProcessor,
-            ILogger<ProcessProviderItem> logger)
+            ILogger<ProcessLearnersItem> logger)
         {
             _changeProcessor = changeProcessor;
             _logger = logger;
         }
         
-        [FunctionName(nameof(ProcessProviderItem))]
+        [FunctionName(nameof(ProcessLearnersItem))]
         [StorageAccount("Queuing:QueueConnectionString")]
         public async Task RunAsync(
-            [QueueTrigger(QueueNames.ProviderQueueName)]
+            [QueueTrigger(QueueNames.LearnerQueueName)]
             CloudQueueMessage message,
             CancellationToken cancellationToken)
         {
@@ -40,12 +40,12 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs.Functions
             {
                 _logger.LogInformation($"Starting to process message {message.Id} on attempt {message.DequeueCount}");
 
-                var queueItem = JsonSerializer.Deserialize<ProviderQueueItem>(message.AsString);
-                _logger.LogInformation("Message is for provider {UKPRN} in academic year {AcademicYear}",
-                    queueItem.Ukprn, queueItem.AcademicYear);
+                var queueItem = JsonSerializer.Deserialize<LearnerQueueItem>(message.AsString);
+                _logger.LogInformation("Message is for page {PageNumber} of provider {UKPRN} in academic year {AcademicYear}",
+                    queueItem.PageNumber, queueItem.Ukprn, queueItem.AcademicYear);
                 
                 _logger.LogDebug("Starting change processing...");
-                await _changeProcessor.ProcessProviderAsync(queueItem.AcademicYear, queueItem.Ukprn, cancellationToken);
+                await _changeProcessor.ProcessLearnerAsync(queueItem.AcademicYear, queueItem.Ukprn, queueItem.PageNumber, cancellationToken);
                 _logger.LogDebug("Finished change processing...");
             }
         }

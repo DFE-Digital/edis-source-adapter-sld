@@ -2,11 +2,13 @@ using System.Net.Http;
 using Dfe.Edis.Kafka;
 using Dfe.Edis.SourceAdapter.Sld.Application;
 using Dfe.Edis.SourceAdapter.Sld.Domain.Configuration;
+using Dfe.Edis.SourceAdapter.Sld.Domain.DataServicesPlatform;
 using Dfe.Edis.SourceAdapter.Sld.Domain.Queuing;
 using Dfe.Edis.SourceAdapter.Sld.Domain.StateManagement;
 using Dfe.Edis.SourceAdapter.Sld.Domain.SubmitLearnerData;
 using Dfe.Edis.SourceAdapter.Sld.Infrastructure.AzureStorage.Queuing;
 using Dfe.Edis.SourceAdapter.Sld.Infrastructure.AzureStorage.StateManagement;
+using Dfe.Edis.SourceAdapter.Sld.Infrastructure.Kafka;
 using Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,10 +22,12 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs
             AddConfiguration(services, configuration);
 
             services.AddHttpClient();
+            services.AddKafkaProducer();
 
             AddState(services);
             AddQueuing(services);
             AddSubmitLearnerData(services);
+            AddSldDataReceiver(services);
 
             services
                 .AddScoped<IChangeProcessor, ChangeProcessor>();
@@ -35,6 +39,16 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs
             services.AddSingleton(configuration.State);
             services.AddSingleton(configuration.Queuing);
             services.AddSingleton(configuration.SubmitLearnerData);
+            services.AddSingleton(configuration.DataServicePlatform);
+            
+            services.AddSingleton(new KafkaBrokerConfiguration
+            {
+                BootstrapServers = configuration.DataServicePlatform.KafkaBootstrapServers,
+            });
+            services.AddSingleton(new KafkaSchemaRegistryConfiguration
+            {
+                BaseUrl = configuration.DataServicePlatform.SchemaRegistryUrl,
+            });
         }
 
         private void AddState(IServiceCollection services)
@@ -68,6 +82,11 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs
 
                 return new SubmitLearnerDataApiClient(httpClient, authenticator, configuration, logger);
             });
+        }
+        
+        private void AddSldDataReceiver(IServiceCollection services)
+        {
+            services.AddScoped<ISldDataReceiver, KafkaProducerApiSldDataReceiver>();
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dfe.Edis.SourceAdapter.Sld.Domain.DataServicesPlatform;
 using Dfe.Edis.SourceAdapter.Sld.Domain.Queuing;
 using Dfe.Edis.SourceAdapter.Sld.Domain.StateManagement;
 using Dfe.Edis.SourceAdapter.Sld.Domain.SubmitLearnerData;
@@ -15,6 +16,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application
         Task CheckForUpdatedProvidersAsync(CancellationToken cancellationToken);
 
         Task ProcessProviderAsync(string academicYear, int ukprn, CancellationToken cancellationToken);
+        Task ProcessLearnerAsync(string academicYear, int ukprn, int pageNumber, CancellationToken cancellationToken);
     }
 
     public class ChangeProcessor : IChangeProcessor
@@ -23,6 +25,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application
         private readonly ISldClient _sldClient;
         private readonly IProviderQueue _providerQueue;
         private readonly ILearnerQueue _learnerQueue;
+        private readonly ISldDataReceiver _sldDataReceiver;
         private readonly ILogger<ChangeProcessor> _logger;
 
         public ChangeProcessor(
@@ -30,12 +33,14 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application
             ISldClient sldClient,
             IProviderQueue providerQueue,
             ILearnerQueue learnerQueue,
+            ISldDataReceiver sldDataReceiver,
             ILogger<ChangeProcessor> logger)
         {
             _stateStore = stateStore;
             _sldClient = sldClient;
             _providerQueue = providerQueue;
             _learnerQueue = learnerQueue;
+            _sldDataReceiver = sldDataReceiver;
             _logger = logger;
         }
 
@@ -117,6 +122,16 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application
             {
                 state.IgnoredSubmissionCount++;
                 await _stateStore.SetProviderStateAsync(state, cancellationToken);
+            }
+        }
+
+        public async Task ProcessLearnerAsync(string academicYear, int ukprn, int pageNumber, CancellationToken cancellationToken)
+        {
+            var pageOfLearners = await _sldClient.ListLearnersForProviderAsync(academicYear, ukprn, pageNumber, cancellationToken);
+
+            foreach (var learner in pageOfLearners.Items)
+            {
+                await _sldDataReceiver.SendLearnerAsync(learner, cancellationToken);
             }
         }
     }

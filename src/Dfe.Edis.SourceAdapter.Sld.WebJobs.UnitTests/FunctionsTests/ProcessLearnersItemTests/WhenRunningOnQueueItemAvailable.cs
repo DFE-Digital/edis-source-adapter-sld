@@ -10,43 +10,45 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 
-namespace Dfe.Edis.SourceAdapter.Sld.WebJobs.UnitTests.FunctionsTests.ProcessProviderItemTests
+namespace Dfe.Edis.SourceAdapter.Sld.WebJobs.UnitTests.FunctionsTests.ProcessLearnersItemTests
 {
     public class WhenRunningOnQueueItemAvailable
     {
         private Mock<IChangeProcessor> _changeProcessorMock;
-        private Mock<ILogger<ProcessProviderItem>> _loggerMock;
-        private ProcessProviderItem _function;
+        private Mock<ILogger<ProcessLearnersItem>> _loggerMock;
+        private ProcessLearnersItem _function;
 
         [SetUp]
         public void Arrange()
         {
             _changeProcessorMock = new Mock<IChangeProcessor>();
 
-            _loggerMock = new Mock<ILogger<ProcessProviderItem>>();
+            _loggerMock = new Mock<ILogger<ProcessLearnersItem>>();
 
-            _function = new ProcessProviderItem(
+            _function = new ProcessLearnersItem(
                 _changeProcessorMock.Object,
                 _loggerMock.Object);
         }
 
         [Test]
-        public async Task ThenItShouldProcessProviderQueueItem()
+        public async Task ThenItShouldProcessLearnersQueueItem()
         {
             var cancellationToken = new CancellationToken();
-            var queueItem = new ProviderQueueItem
+            var queueItem = new LearnerQueueItem()
             {
                 AcademicYear = "2021",
                 Ukprn = 12345678,
+                PageNumber = 23,
             };
 
             await _function.RunAsync(
                 new CloudQueueMessage(JsonSerializer.Serialize(queueItem)),
                 cancellationToken);
 
-            _changeProcessorMock.Verify(processor => processor.ProcessProviderAsync(
+            _changeProcessorMock.Verify(processor => processor.ProcessLearnerAsync(
                     queueItem.AcademicYear,
                     queueItem.Ukprn,
+                    queueItem.PageNumber,
                     cancellationToken),
                 Times.Once);
         }
@@ -55,12 +57,12 @@ namespace Dfe.Edis.SourceAdapter.Sld.WebJobs.UnitTests.FunctionsTests.ProcessPro
         public async Task ThenItShouldLogAndRethrowExceptions()
         {
             var exception = new NullReferenceException("unit test error");
-            _changeProcessorMock.Setup(processor => processor.ProcessProviderAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            _changeProcessorMock.Setup(processor => processor.ProcessLearnerAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(exception);
 
             var actual = Assert.ThrowsAsync<NullReferenceException>(async () =>
                 await _function.RunAsync(
-                    new CloudQueueMessage(JsonSerializer.Serialize(new ProviderQueueItem())),
+                    new CloudQueueMessage(JsonSerializer.Serialize(new LearnerQueueItem())),
                     CancellationToken.None));
             Assert.AreSame(exception, actual);
         }

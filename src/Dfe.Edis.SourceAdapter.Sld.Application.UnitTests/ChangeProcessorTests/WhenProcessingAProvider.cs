@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture.NUnit3;
+using Dfe.Edis.SourceAdapter.Sld.Domain.DataServicesPlatform;
 using Dfe.Edis.SourceAdapter.Sld.Domain.Queuing;
 using Dfe.Edis.SourceAdapter.Sld.Domain.StateManagement;
 using Dfe.Edis.SourceAdapter.Sld.Domain.SubmitLearnerData;
@@ -17,6 +18,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
         private Mock<ISldClient> _sldClientMock;
         private Mock<IProviderQueue> _providerQueueMock;
         private Mock<ILearnerQueue> _learnerQueueMock;
+        private Mock<ISldDataReceiver> _sldDataReceiverMock;
         private Mock<ILogger<ChangeProcessor>> _loggerMock;
         private ChangeProcessor _processor;
 
@@ -44,6 +46,8 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
 
             _learnerQueueMock = new Mock<ILearnerQueue>();
 
+            _sldDataReceiverMock = new Mock<ISldDataReceiver>();
+
             _loggerMock = new Mock<ILogger<ChangeProcessor>>();
 
             _processor = new ChangeProcessor(
@@ -51,6 +55,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application.UnitTests.ChangeProcessorTests
                 _sldClientMock.Object,
                 _providerQueueMock.Object,
                 _learnerQueueMock.Object,
+                _sldDataReceiverMock.Object,
                 _loggerMock.Object);
         }
 
