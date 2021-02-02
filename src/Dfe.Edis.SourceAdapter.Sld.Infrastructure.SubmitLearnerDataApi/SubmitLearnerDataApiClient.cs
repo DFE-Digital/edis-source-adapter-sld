@@ -189,7 +189,11 @@ namespace Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi
             {
                 try
                 {
-                    paginationInfo = JsonSerializer.Deserialize<SldPaginationInfo>(paginationHeader);
+                    paginationInfo = JsonSerializer.Deserialize<SldPaginationInfo>(paginationHeader,
+                        new JsonSerializerOptions
+                        {
+                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                        });
                 }
                 catch (Exception ex)
                 {
@@ -201,7 +205,11 @@ namespace Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi
 
             try
             {
-                var data = JsonSerializer.Deserialize<T>(content);
+                var data = JsonSerializer.Deserialize<T>(content,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    });
                 return new SldResult<T>
                 {
                     Data = data,

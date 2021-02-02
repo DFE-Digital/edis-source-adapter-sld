@@ -5,12 +5,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Dfe.Edis.SourceAdapter.Sld.Domain\Dfe.Edis.SourceAdapter.Sld.Domain.csproj"/>
+        <ProjectReference Include="..\Dfe.Edis.SourceAdapter.Sld.Domain\Dfe.Edis.SourceAdapter.Sld.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dfe.Edis.Kafka" Version="1.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.11"/>
+        <PackageReference Include="Dfe.Edis.Kafka" Version="1.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.11" />
     </ItemGroup>
 
 </Project>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Dfe.Edis.SourceAdapter.Sld.Domain.DataServicesPlatform;
@@ -96,7 +97,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.Application
             var firstPageOfLearners = await _sldClient.ListLearnersForProviderAsync(academicYear, ukprn, 1, cancellationToken);
 
             var state = await _stateStore.GetProviderStateAsync(academicYear, ukprn, cancellationToken);
-            var difference = state == null ? 0m : Math.Abs(1 - (firstPageOfLearners.TotalNumberOfItems / (decimal) state.NumberOfLearners));
+            var difference = state == null || state.NumberOfLearners == 0 ? 0m : Math.Abs(1 - (firstPageOfLearners.TotalNumberOfItems / (decimal) state.NumberOfLearners));
 
             if (state == null || difference <= 0.1m || state.IgnoredSubmissionCount >= 4)
             {

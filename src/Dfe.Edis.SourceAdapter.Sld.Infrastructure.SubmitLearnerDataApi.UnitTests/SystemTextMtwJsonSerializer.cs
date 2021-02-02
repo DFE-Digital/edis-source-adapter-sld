@@ -6,7 +6,10 @@ namespace Dfe.Edis.SourceAdapter.Sld.Infrastructure.SubmitLearnerDataApi.UnitTes
     {
         public string Serialize(object item)
         {
-            return JsonSerializer.Serialize(item);
+            return JsonSerializer.Serialize(item, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            });
         }
     }
 }
