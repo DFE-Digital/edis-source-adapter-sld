@@ -32,6 +32,8 @@ ProjectSection(SolutionItems) = preProject
 	..\azure\template.json = ..\azure\template.json
 EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.Edis.SourceAdapter.Sld.IntegrationTests", "Dfe.Edis.SourceAdapter.Sld.IntegrationTests\Dfe.Edis.SourceAdapter.Sld.IntegrationTests.csproj", "{B87DD76A-DEB9-4420-9C0A-ED4687E0B07A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,10 @@ Global
 		{DDA96DC1-01CF-4EDC-9F82-5F76405AA725}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDA96DC1-01CF-4EDC-9F82-5F76405AA725}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDA96DC1-01CF-4EDC-9F82-5F76405AA725}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B87DD76A-DEB9-4420-9C0A-ED4687E0B07A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B87DD76A-DEB9-4420-9C0A-ED4687E0B07A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B87DD76A-DEB9-4420-9C0A-ED4687E0B07A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B87DD76A-DEB9-4420-9C0A-ED4687E0B07A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{35967F82-AB03-4780-9E7A-54A41C1B28D0} = {108D3C08-1AB2-4B47-8FA2-449BE91B1CD6}
@@ -81,5 +87,6 @@ Global
 		{FB5362FC-E884-4C1B-A211-EBDA32CDAD06} = {108D3C08-1AB2-4B47-8FA2-449BE91B1CD6}
 		{4BC6A305-C61E-4728-BD9B-ACD66168C250} = {41B3C6F4-64B5-4430-823D-D5CA3067F490}
 		{E6DD104F-0D80-4F0F-8F3D-7E8A572058B5} = {41B3C6F4-64B5-4430-823D-D5CA3067F490}
+		{B87DD76A-DEB9-4420-9C0A-ED4687E0B07A} = {108D3C08-1AB2-4B47-8FA2-449BE91B1CD6}
 	EndGlobalSection
 EndGlobal
