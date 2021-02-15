@@ -32,7 +32,7 @@ ProjectSection(SolutionItems) = preProject
 	..\azure\template.json = ..\azure\template.json
 EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.Edis.SourceAdapter.Sld.IntegrationTests", "Dfe.Edis.SourceAdapter.Sld.IntegrationTests\Dfe.Edis.SourceAdapter.Sld.IntegrationTests.csproj", "{B87DD76A-DEB9-4420-9C0A-ED4687E0B07A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dfe.Edis.SourceAdapter.Sld.AcceptanceTests", "Dfe.Edis.SourceAdapter.Sld.AcceptanceTests\Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.csproj", "{B87DD76A-DEB9-4420-9C0A-ED4687E0B07A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

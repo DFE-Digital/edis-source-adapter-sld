@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Dfe.Edis.SourceAdapter.Sld.Domain.DataServicesPlatform;
 using Dfe.Edis.SourceAdapter.Sld.Domain.SubmitLearnerData;
 
-namespace Dfe.Edis.SourceAdapter.Sld.IntegrationTests.TestHarness
+namespace Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.TestHarness
 {
     public class InMemorySldDataReceiver : ISldDataReceiver
     {

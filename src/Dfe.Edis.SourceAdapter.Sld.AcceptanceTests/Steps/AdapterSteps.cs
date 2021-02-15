@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 
-namespace Dfe.Edis.SourceAdapter.Sld.IntegrationTests.StepDefinitions
+namespace Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.Steps
 {
     [Binding]
     public class AdapterSteps

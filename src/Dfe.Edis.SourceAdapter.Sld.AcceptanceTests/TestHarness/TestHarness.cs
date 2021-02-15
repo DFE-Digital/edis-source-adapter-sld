@@ -14,7 +14,7 @@ using Microsoft.Azure.WebJobs.Extensions.Timers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Dfe.Edis.SourceAdapter.Sld.IntegrationTests.TestHarness
+namespace Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.TestHarness
 {
     public class TestHarness
     {
@@ -33,7 +33,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.IntegrationTests.TestHarness
                 SubmitLearnerData = new SubmitLearnerDataConfiguration(),
                 DataServicePlatform = new DataServicePlatformConfiguration(),
             };
-            
+
             // Setup application
             var startup = new Startup();
             startup.Configure(serviceCollection, configuration);
@@ -43,11 +43,12 @@ namespace Dfe.Edis.SourceAdapter.Sld.IntegrationTests.TestHarness
             // Get service provider
             _serviceProvider = serviceCollection.BuildServiceProvider();
         }
-        
+
         public void Reset()
         {
-            var stateStore = (InMemoryStateStore) _serviceProvider.GetService<IStateStore>();
-            stateStore.Reset();
+            State.Reset();
+            
+            Sld.Reset();
         }
 
         public async Task Poll()
@@ -58,25 +59,28 @@ namespace Dfe.Edis.SourceAdapter.Sld.IntegrationTests.TestHarness
                 CancellationToken.None);
         }
 
+        public InMemoryStateStore State => (InMemoryStateStore) _serviceProvider.GetService<IStateStore>();
+        public InMemorySldClient Sld => (InMemorySldClient) _serviceProvider.GetService<ISldClient>();
+
 
         private void SetupServiceForTestHarness(ServiceCollection serviceCollection)
         {
             // Replace stubbed services
             serviceCollection.RemoveAll(typeof(IStateStore));
             serviceCollection.AddSingleton<IStateStore, InMemoryStateStore>();
-            
+
             serviceCollection.RemoveAll(typeof(ISldClient));
             serviceCollection.AddSingleton<ISldClient, InMemorySldClient>();
-            
+
             serviceCollection.RemoveAll(typeof(IProviderQueue));
             serviceCollection.AddSingleton<IProviderQueue, InProcessProviderQueue>();
-            
+
             serviceCollection.RemoveAll(typeof(ILearnerQueue));
             serviceCollection.AddSingleton<ILearnerQueue, InProcessLearnerQueue>();
-            
+
             serviceCollection.RemoveAll(typeof(ISldDataReceiver));
             serviceCollection.AddSingleton<ISldDataReceiver, InMemorySldDataReceiver>();
-            
+
             // Add functions (as they are done by runtime we are not running within)
             var functions = GetFunctions();
             foreach (var function in functions)
@@ -84,6 +88,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.IntegrationTests.TestHarness
                 serviceCollection.AddScoped(function);
             }
         }
+
         private Type[] GetFunctions()
         {
             var functionTriggerTypes = new[]

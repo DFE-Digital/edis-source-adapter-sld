@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dfe.Edis.SourceAdapter.Sld.Domain.StateManagement;
 
-namespace Dfe.Edis.SourceAdapter.Sld.IntegrationTests.TestHarness
+namespace Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.TestHarness
 {
     public class InMemoryStateStore : IStateStore
     {

@@ -1,7 +1,6 @@
-using System;
 using TechTalk.SpecFlow;
 
-namespace Dfe.Edis.SourceAdapter.Sld.IntegrationTests.Hooks
+namespace Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.Hooks
 {
     [Binding]
     public class Hooks
