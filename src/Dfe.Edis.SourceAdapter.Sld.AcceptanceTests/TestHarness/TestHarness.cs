@@ -49,6 +49,8 @@ namespace Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.TestHarness
             State.Reset();
             Sld.Reset();
             DataReceiver.Reset();
+            ProviderQueue.Reset();
+            LearnerQueue.Reset();
             Context.Reset();
         }
 
@@ -58,11 +60,16 @@ namespace Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.TestHarness
             await pollFunction.RunAsync(
                 new TimerInfo(new ConstantSchedule(new TimeSpan(1, 0, 0, 0)), new ScheduleStatus(), false),
                 CancellationToken.None);
+
+            await ProviderQueue.DrainAsync();
+            await LearnerQueue.DrainAsync();
         }
 
         public InMemoryStateStore State => (InMemoryStateStore) _serviceProvider.GetService<IStateStore>();
         public InMemorySldClient Sld => (InMemorySldClient) _serviceProvider.GetService<ISldClient>();
         public InMemorySldDataReceiver DataReceiver => (InMemorySldDataReceiver) _serviceProvider.GetService<ISldDataReceiver>();
+        public InProcessProviderQueue ProviderQueue => (InProcessProviderQueue) _serviceProvider.GetService<IProviderQueue>();
+        public InProcessLearnerQueue LearnerQueue => (InProcessLearnerQueue) _serviceProvider.GetService<ILearnerQueue>();
         public TestContext Context { get; private set; } = new TestContext();
 
 
@@ -76,10 +83,12 @@ namespace Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.TestHarness
             serviceCollection.AddSingleton<ISldClient, InMemorySldClient>();
 
             serviceCollection.RemoveAll(typeof(IProviderQueue));
-            serviceCollection.AddSingleton<IProviderQueue, InProcessProviderQueue>();
+            serviceCollection.AddSingleton<IProviderQueue>(sp =>
+                new InProcessProviderQueue(sp.GetService));
 
             serviceCollection.RemoveAll(typeof(ILearnerQueue));
-            serviceCollection.AddSingleton<ILearnerQueue, InProcessLearnerQueue>();
+            serviceCollection.AddSingleton<ILearnerQueue>(sp =>
+                new InProcessLearnerQueue(sp.GetService));
 
             serviceCollection.RemoveAll(typeof(ISldDataReceiver));
             serviceCollection.AddSingleton<ISldDataReceiver, InMemorySldDataReceiver>();

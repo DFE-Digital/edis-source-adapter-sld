@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Dfe.Edis.SourceAdapter.Sld.Domain.StateManagement;
@@ -8,6 +9,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.TestHarness
     public class InMemoryStateStore : IStateStore
     {
         private DateTime? _lastPoll;
+        private ConcurrentDictionary<string, ProviderState> _providerState = new ConcurrentDictionary<string, ProviderState>();
 
         public void Reset()
         {
@@ -25,14 +27,18 @@ namespace Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.TestHarness
             return Task.CompletedTask;
         }
 
-        public async Task<ProviderState> GetProviderStateAsync(string academicYear, int provider, CancellationToken cancellationToken)
+        public Task<ProviderState> GetProviderStateAsync(string academicYear, int provider, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var key = $"{academicYear}|{provider}".ToLower();
+            _providerState.TryGetValue(key, out var state);
+            return Task.FromResult(state);
         }
 
-        public async Task SetProviderStateAsync(ProviderState state, CancellationToken cancellationToken)
+        public Task SetProviderStateAsync(ProviderState state, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var key = $"{state.AcademicYear}|{state.Ukprn}".ToLower();
+            _providerState.AddOrUpdate(key, state, (existingKey, existingState) => state);
+            return Task.CompletedTask;
         }
     }
 }
