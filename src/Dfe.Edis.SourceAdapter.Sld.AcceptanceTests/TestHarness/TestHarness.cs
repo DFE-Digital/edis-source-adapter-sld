@@ -47,8 +47,9 @@ namespace Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.TestHarness
         public void Reset()
         {
             State.Reset();
-            
             Sld.Reset();
+            DataReceiver.Reset();
+            Context.Reset();
         }
 
         public async Task Poll()
@@ -61,6 +62,8 @@ namespace Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.TestHarness
 
         public InMemoryStateStore State => (InMemoryStateStore) _serviceProvider.GetService<IStateStore>();
         public InMemorySldClient Sld => (InMemorySldClient) _serviceProvider.GetService<ISldClient>();
+        public InMemorySldDataReceiver DataReceiver => (InMemorySldDataReceiver) _serviceProvider.GetService<ISldDataReceiver>();
+        public TestContext Context { get; private set; } = new TestContext();
 
 
         private void SetupServiceForTestHarness(ServiceCollection serviceCollection)
