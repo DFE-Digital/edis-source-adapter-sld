@@ -46,7 +46,7 @@ namespace Dfe.Edis.SourceAdapter.Sld.AcceptanceTests.Helpers
 
         public static DateTime DateInFuture(int minYears, int maxYears)
         {
-            var year = Number(DateTime.Today.Year + minYears, DateTime.Today.Year - maxYears);
+            var year = Number(DateTime.Today.Year + minYears, DateTime.Today.Year + maxYears);
             var month = Number(1, 12);
             var day = Number(1, 28);
 
